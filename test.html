@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picsum Image Controls</title>
+  <!-- Bootstrap 6 CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container py-4">
+  <h1 class="h4 mb-4">Picsum Image Generator</h1>
+
+  <!-- Controls Card -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row gy-3 align-items-center">
+        
+        <!-- Blur Toggle -->
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="blurToggle">
+            <label class="form-check-label fw-medium" for="blurToggle">Enable Blur</label>
+          </div>
+        </div>
+
+        <!-- Blur Slider -->
+        <div class="col-md-5 col-sm-6">
+          <label for="blurSlider" class="form-label fw-medium mb-1">Blur Amount</label>
+          <div class="d-flex align-items-center gap-2">
+            <input type="range" class="form-range flex-grow-1" id="blurSlider" min="1" max="10" value="2" disabled>
+            <span id="blurValue" class="badge bg-secondary text-nowrap">2</span>
+          </div>
+        </div>
+
+        <!-- Grayscale Toggle -->
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="grayscaleToggle">
+            <label class="form-check-label fw-medium" for="grayscaleToggle">Grayscale</label>
+          </div>
+        </div>
+
+        <!-- Load Button -->
+        <div class="col-md-8 col-sm-6">
+          <button id="loadBtn" class="btn btn-primary w-100">Load Image</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Display Card -->
+  <div class="card">
+    <div class="card-body text-center" id="imageContainer">
+      <p class="text-muted fst-italic">Your image will appear here…</p>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 6 JS Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const IMAGE_BASE_URL = "https://picsum.photos";
+
+// Build URL — clean & robust
+function buildPicsumUrl({
+  width = 400,
+  height = 300,
+  grayscale = false,
+  blur = false
+} = {}) {
+  const url = new URL(`${width}/${height}`, IMAGE_BASE_URL + "/");
+
+  if (grayscale) {
+    url.searchParams.set("grayscale", "");
+  }
+
+  if (blur === true) {
+    url.searchParams.set("blur", "");
+  } else if (blur) {
+    url.searchParams.set("blur", blur);
+  }
+
+  return url;
+}
+
+// Fetch image blob
+async function getImageBlob(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.blob();
+}
+
+// Toggle slider enabled state
+document.getElementById("blurToggle").addEventListener("change", e => {
+  document.getElementById("blurSlider").disabled = !e.target.checked;
+});
+
+// Update live value display
+document.getElementById("blurSlider").addEventListener("input", e => {
+  document.getElementById("blurValue").textContent = e.target.value;
+});
+
+// Load & display image
+document.getElementById("loadBtn").addEventListener("click", async () => {
+  const blurToggle = document.getElementById("blurToggle");
+  const blurSlider = document.getElementById("blurSlider");
+  const grayscaleToggle = document.getElementById("grayscaleToggle");
+  const container = document.getElementById("imageContainer");
+
+  // Determine blur option: false | number
+  const blurOption = blurToggle.checked ? parseInt(blurSlider.value, 10) : false;
+
+  try {
+    const url = buildPicsumUrl({
+      width: 400,
+      height: 300,
+      grayscale: grayscaleToggle.checked,
+      blur: blurOption
+    });
+
+    console.log("Fetching:", url.href);
+
+    const blob = await getImageBlob(url);
+    const imgUrl = URL.createObjectURL(blob);
+
+    // Render image
+    container.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = imgUrl;
+    img.alt = "Generated image";
+    img.className = "img-fluid rounded shadow-sm";
+    container.appendChild(img);
+
+  } catch (err) {
+    container.innerHTML = `<p class="text-danger">Failed to load image: ${err.message}</p>`;
+    console.error("Error:", err);
+  }
+});
+</script>
+
+</body>
+</html>
