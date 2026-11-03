@@ -14,15 +14,10 @@ function renderImage(randomImageBlob) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const props = {
-        grayscale: false,
-    }
 
     const url = buildPicsumUrl(props);
     const randomImageBlob = await getRandomImage(url.href);
     renderImage(randomImageBlob);
-
-
 });
 function buildPicsumUrl({
     width = 200,
@@ -81,7 +76,6 @@ document.querySelector("#blurSlider").addEventListener("input", (e) => {
     //   document.getElementById("blurValue").textContent = e.target.value;
 });
 
-// Load image from controls
 document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
