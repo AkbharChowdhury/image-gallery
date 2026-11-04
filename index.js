@@ -1,5 +1,6 @@
-const blurToggle = document.querySelector("#blurToggle");
 const MAX_BLUR = 10;
+const blurToggle = document.querySelector("#blurToggle");
+const blurSlider = document.querySelector("#blurSlider");
 
 function cloneTemplate(templateSelector) {
     const template = document.querySelector(templateSelector);
@@ -18,10 +19,10 @@ function renderImage(randomImageBlob) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     const url = buildPicsumUrl();
     const randomImageBlob = await getRandomImage(url.href);
     renderImage(randomImageBlob);
+    blurSlider.setAttribute('max', MAX_BLUR);
 });
 function buildPicsumUrl({
     width = 200,
@@ -60,8 +61,6 @@ async function getRandomImage(imageUrl) {
 
 }
 
-
-
 blurToggle.addEventListener("change", (e) => {
     const slider = document.getElementById("blurSlider");
     const isEnabled = e.target.checked;
@@ -69,39 +68,29 @@ blurToggle.addEventListener("change", (e) => {
 });
 
 
-function getBlurSetting(blurSlider) {
-
+function getBlurSetting() {
     if (!blurToggle.checked) return false;    
     const sliderVal = parseInt(blurSlider.value, MAX_BLUR);
     const blurOption = sliderVal === 0 ? true : sliderVal;
     return blurOption;
-
-
 }
 
 
 document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    const blurSlider = document.querySelector("#blurSlider");
     const grayscaleToggle = document.querySelector("#grayscaleToggle");
-    blurSlider.setAttribute('max', MAX_BLUR);
-    const blurOption = getBlurSetting(blurSlider);
+    const blurOption = getBlurSetting();
     
     try {
-
         const props = {
             width: 400,
             height: 300,
             grayscale: grayscaleToggle.checked,
-            blur: blurOption
+            blur: blurOption,
         }
         const url = buildPicsumUrl(props);
-
         const randomImageBlob = await getRandomImage(url.href);
         renderImage(randomImageBlob);
-
-
     } catch (err) {
         console.error("Error:", err);
     }
