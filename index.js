@@ -14,7 +14,8 @@ function renderImage(randomImageBlob) {
     img.onload = () => {
         const galleryItem = cloneTemplate("template");
         galleryItem.querySelector("img").setAttribute("src", img.src);
-        document.querySelector("#image-gallery").appendChild(galleryItem);
+        const gallery = document.querySelector("#image-gallery");
+        gallery.appendChild(galleryItem);
     };
 }
 
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderImage(randomImageBlob);
     blurSlider.setAttribute('max', MAX_BLUR);
 });
+
 function buildPicsumUrl({
     width = 200,
     height = 200,
@@ -44,7 +46,7 @@ function buildPicsumUrl({
     return url;
 
 }
-async function getRandomImage(imageUrl) {
+async function getRandomImage(imageUrl='') {
 
     try {
 
@@ -62,7 +64,7 @@ async function getRandomImage(imageUrl) {
 }
 
 blurToggle.addEventListener("change", (e) => {
-    const slider = document.getElementById("blurSlider");
+    const slider = document.querySelector("#blurSlider");
     const isEnabled = e.target.checked;
     slider.disabled = !isEnabled;
 });
@@ -71,7 +73,7 @@ blurToggle.addEventListener("change", (e) => {
 function getBlurSetting() {
     if (!blurToggle.checked) return false;    
     const sliderVal = parseInt(blurSlider.value, MAX_BLUR);
-    const blurOption = sliderVal === 0 ? true : sliderVal;
+    const blurOption = (sliderVal === 0 ) ? true : sliderVal;
     return blurOption;
 }
 
