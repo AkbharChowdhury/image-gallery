@@ -77,23 +77,22 @@ function getBlurSetting() {
     return blurOption;
 }
 
-
 document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const grayscaleToggle = document.querySelector("#grayscaleToggle");
     const blurOption = getBlurSetting();
+    const props = {
+        width: 400,
+        height: 300,
+        grayscale: grayscaleToggle.checked,
+        blur: blurOption,
+    };
     
     try {
-        const props = {
-            width: 400,
-            height: 300,
-            grayscale: grayscaleToggle.checked,
-            blur: blurOption,
-        }
         const url = buildPicsumUrl(props);
         const randomImageBlob = await getRandomImage(url.href);
         renderImage(randomImageBlob);
     } catch (err) {
-        console.error("Error:", err);
+        console.error("Whoops, we had issues fetching you new image:", err.message);
     }
 });
