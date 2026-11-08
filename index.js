@@ -55,7 +55,6 @@ function buildPicsumUrl({
 async function getRandomImage(imageUrl = '') {
 
     try {
-
         const res = await fetch(imageUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         const blob = await res.blob();
@@ -80,8 +79,6 @@ function getBlurSetting({blurToggleIsOn=false, blurAmount=0} = {}) {
     return (blurAmount === 0) ? true : blurAmount;
 }
 
-
-
 document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const grayscaleToggle = document.querySelector("#grayscaleToggle");
@@ -90,7 +87,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
         blurToggleIsOn: blurToggle.checked,
         blurAmount: parseInt(blurSlider.value)
     });
-    
+
     const props = {
         width: 400,
         height: 300,
