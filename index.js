@@ -1,12 +1,13 @@
 const MAX_BLUR = 10;
-const IMAGE_BASE_URL = "https://picsum.photos/";
+const IMAGE_BASE_URL = 'https://picsum.photos/';
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
     blur: 'blur',
 });
 
-const blurToggle = document.querySelector("#blurToggle");
-const blurSlider = document.querySelector("#blurSlider");
+const blurToggle = document.querySelector('#blurToggle');
+const blurSlider = document.querySelector('#blurSlider');
+const form = document.querySelector('form');
 
 function cloneTemplate(templateSelector) {
     const template = document.querySelector(templateSelector);
@@ -14,25 +15,28 @@ function cloneTemplate(templateSelector) {
     return clone;
 }
 
-function renderImage(randomImageBlob) {
+function renderImage(blob) {
     const img = new Image();
-    img.src = URL.createObjectURL(randomImageBlob);
+    const gallery = document.querySelector('#image-gallery');
+    const galleryItem = cloneTemplate('template');
+    img.src = URL.createObjectURL(blob);
+
     img.onload = () => {
-        const gallery = document.querySelector("#image-gallery");
-        const galleryItem = cloneTemplate("template");
-        galleryItem.querySelector("img").src = img.src;
+        galleryItem.querySelector('img').src = img.src;
         gallery.appendChild(galleryItem);
+        URL.revokeObjectURL(img.src);
     };
 }
 
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+    
     // Set up UI constants first
     blurSlider.setAttribute('max', MAX_BLUR);
     // Load and display initial image
     const url = buildPicsumUrl();
-    const blob = await getRandomImage(url.href);
+    const blob = await fetchImageBlob(url.href);
     renderImage(blob);
 
   } catch (err) {
@@ -50,24 +54,25 @@ function buildPicsumUrl({
 } = {}) {
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
     const params = url.searchParams;
-    const blurAmount = (blur === true) ? "" : blur;
+    const blurAmount = (blur === true) ? '': blur;
 
     // Empty string = ?grayscale without value (Picsum standard pattern)
-    if (grayscale) params.set(paramKeys.grayscale, "");
+    if (grayscale) params.set(paramKeys.grayscale, '');
 
     if(blur !==false) params.set(paramKeys.blur, blurAmount);
 
-    // console.log("Fetching:", url.href);
+    // console.log('Fetching:', url.href);
     return url;
 }
 
-async function getRandomImage(imageUrl = '') {
+async function fetchImageBlob(url = '') {
 
     try {
-        const res = await fetch(imageUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        const blob = await res.blob();
-        return blob;
+        const res = await fetch(url);
+        if (!res.ok){
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+        }
+        return await res.blob();
     } catch (error) {
         console.error('there was a problem fetching random image', error.message);
         throw error;
@@ -76,10 +81,9 @@ async function getRandomImage(imageUrl = '') {
 
 }
 
-blurToggle.addEventListener("change", (e) => {
-    const slider = document.querySelector("#blurSlider");
+blurToggle.addEventListener('change', (e) => {
     const isEnabled = e.target.checked;
-    slider.disabled = !isEnabled;
+    blurSlider.disabled = !isEnabled;
 });
 
 
@@ -88,27 +92,29 @@ function getBlurSetting({blurToggleIsOn=false, blurAmount=0} = {}) {
     return (blurAmount === 0) ? true : blurAmount;
 }
 
-document.querySelector("form").addEventListener("submit", async (e) => {
+form.addEventListener('submit', async (e) => {
+
     e.preventDefault();
-    const grayscaleToggle = document.querySelector("#grayscaleToggle");
+
+    const grayscaleToggle = document.querySelector('#grayscaleToggle');
 
     const blurOption = getBlurSetting({
         blurToggleIsOn: blurToggle.checked,
         blurAmount: parseInt(blurSlider.value)
     });
 
-    const props = {
+    const props = Object.freeze({
         width: 400,
         height: 300,
         grayscale: grayscaleToggle.checked,
         blur: blurOption,
-    };
+    });
     
     try {
         const url = buildPicsumUrl(props);
-        const randomImageBlob = await getRandomImage(url.href);
-        renderImage(randomImageBlob);
+        const blob = await fetchImageBlob(url.href);
+        renderImage(blob);
     } catch (err) {
-        console.error("Whoops, we had issues fetching you new image:", err.message);
+        console.error('Whoops, we had issues fetching you new image:', err.message);
     }
 });
