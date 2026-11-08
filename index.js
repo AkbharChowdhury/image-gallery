@@ -19,14 +19,21 @@ function renderImage(randomImageBlob) {
     };
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    
-    const url = buildPicsumUrl();
-    const randomImageBlob = await getRandomImage(url.href);
-    renderImage(randomImageBlob);
-    blurSlider.setAttribute('max', MAX_BLUR);
-});
 
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Set up UI constants first
+    blurSlider.setAttribute('max', MAX_BLUR);
+    // Load and display initial image
+    const url = buildPicsumUrl();
+    const blob = await getRandomImage(url.href);
+    renderImage(blob);
+
+  } catch (err) {
+    console.error('Failed to initialise gallery:', err);
+    
+  }
+});
 function buildPicsumUrl({
     width = 200,
     height = 200,
