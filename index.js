@@ -12,14 +12,15 @@ function renderImage(randomImageBlob) {
     const img = new Image();
     img.src = URL.createObjectURL(randomImageBlob);
     img.onload = () => {
-        const galleryItem = cloneTemplate("template");
-        galleryItem.querySelector("img").setAttribute("src", img.src);
         const gallery = document.querySelector("#image-gallery");
+        const galleryItem = cloneTemplate("template");
+        galleryItem.querySelector("img").src = img.src;
         gallery.appendChild(galleryItem);
     };
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    
     const url = buildPicsumUrl();
     const randomImageBlob = await getRandomImage(url.href);
     renderImage(randomImageBlob);
@@ -33,20 +34,19 @@ function buildPicsumUrl({
     blur = false
 } = {}) {
 
-    const IMAGE_BASE_URL = "https://picsum.photos";
-    const url = new URL(`${width}/${height}`, IMAGE_BASE_URL + "/");
+    const IMAGE_BASE_URL = "https://picsum.photos/";
+    const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
 
     // note "" =  url.searchParams.set("paramName", "") = ?paramName
-
     grayscale && url.searchParams.set("grayscale", "");
-    const blurAmount = (blur === true) ? '' : blur;   
+    const blurAmount = (blur === true) ? '' : blur;
     if (blur) url.searchParams.set('blur', blurAmount)
-        
+
     console.log("Fetching:", url.href);
     return url;
 
 }
-async function getRandomImage(imageUrl='') {
+async function getRandomImage(imageUrl = '') {
 
     try {
 
@@ -54,7 +54,6 @@ async function getRandomImage(imageUrl='') {
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         const blob = await res.blob();
         return blob;
-
     } catch (error) {
         console.error('there was a problem fetching random image', error.message);
         throw error;
@@ -71,9 +70,9 @@ blurToggle.addEventListener("change", (e) => {
 
 
 function getBlurSetting() {
-    if (!blurToggle.checked) return false;    
+    if (!blurToggle.checked) return false;
     const sliderVal = parseInt(blurSlider.value, MAX_BLUR);
-    const blurOption = (sliderVal === 0 ) ? true : sliderVal;
+    const blurOption = (sliderVal === 0) ? true : sliderVal;
     return blurOption;
 }
 
@@ -87,7 +86,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
         grayscale: grayscaleToggle.checked,
         blur: blurOption,
     };
-    
+
     try {
         const url = buildPicsumUrl(props);
         const randomImageBlob = await getRandomImage(url.href);
