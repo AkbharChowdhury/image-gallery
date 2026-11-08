@@ -103,7 +103,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
         grayscale: grayscaleToggle.checked,
         blur: blurOption,
     };
-
+    
     try {
         const url = buildPicsumUrl(props);
         const randomImageBlob = await getRandomImage(url.href);
