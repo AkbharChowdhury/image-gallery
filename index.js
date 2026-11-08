@@ -2,6 +2,7 @@ const MAX_BLUR = 10;
 const IMAGE_BASE_URL = "https://picsum.photos/";
 const blurToggle = document.querySelector("#blurToggle");
 const blurSlider = document.querySelector("#blurSlider");
+
 function cloneTemplate(templateSelector) {
     const template = document.querySelector(templateSelector);
     const clone = template.content.cloneNode(true);
