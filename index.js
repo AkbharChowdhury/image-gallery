@@ -1,7 +1,7 @@
 const MAX_BLUR = 10;
+const IMAGE_BASE_URL = "https://picsum.photos/";
 const blurToggle = document.querySelector("#blurToggle");
 const blurSlider = document.querySelector("#blurSlider");
-
 function cloneTemplate(templateSelector) {
     const template = document.querySelector(templateSelector);
     const clone = template.content.cloneNode(true);
@@ -34,25 +34,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     
   }
 });
+
+
 function buildPicsumUrl({
     width = 200,
     height = 200,
     grayscale = false,
     blur = false
 } = {}) {
-
-    const IMAGE_BASE_URL = "https://picsum.photos/";
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
-
-    // note "" =  url.searchParams.set("paramName", "") = ?paramName
-    grayscale && url.searchParams.set("grayscale", "");
-    const blurAmount = (blur === true) ? '' : blur;
-    if (blur) url.searchParams.set('blur', blurAmount)
-
+    const params = url.searchParams;
+    // Empty string = ?grayscale without value (Picsum standard pattern)
+    if (grayscale) params.set("grayscale", "");
+    const blurAmount = (blur === true) ? "" : blur;
+    if(blur !==false) params.set("blur", blurAmount);
     console.log("Fetching:", url.href);
     return url;
-
 }
+
 async function getRandomImage(imageUrl = '') {
 
     try {
@@ -76,17 +75,22 @@ blurToggle.addEventListener("change", (e) => {
 });
 
 
-function getBlurSetting() {
-    if (!blurToggle.checked) return false;
-    const sliderVal = parseInt(blurSlider.value, MAX_BLUR);
-    const blurOption = (sliderVal === 0) ? true : sliderVal;
-    return blurOption;
+function getBlurSetting({blurToggleIsOn=false, blurAmount=0} = {}) {
+    if (!blurToggleIsOn) return false;
+    return (blurAmount === 0) ? true : blurAmount;
 }
+
+
 
 document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const grayscaleToggle = document.querySelector("#grayscaleToggle");
-    const blurOption = getBlurSetting();
+
+    const blurOption = getBlurSetting({
+        blurToggleIsOn: blurToggle.checked,
+        blurAmount: parseInt(blurSlider.value)
+    });
+    
     const props = {
         width: 400,
         height: 300,
