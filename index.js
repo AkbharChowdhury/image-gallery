@@ -1,5 +1,10 @@
 const MAX_BLUR = 10;
 const IMAGE_BASE_URL = "https://picsum.photos/";
+const paramKeys = Object.freeze({
+    grayscale: 'grayscale',
+    blur: 'blur',
+});
+
 const blurToggle = document.querySelector("#blurToggle");
 const blurSlider = document.querySelector("#blurSlider");
 
@@ -45,11 +50,14 @@ function buildPicsumUrl({
 } = {}) {
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
     const params = url.searchParams;
-    // Empty string = ?grayscale without value (Picsum standard pattern)
-    if (grayscale) params.set("grayscale", "");
     const blurAmount = (blur === true) ? "" : blur;
-    if(blur !==false) params.set("blur", blurAmount);
-    console.log("Fetching:", url.href);
+
+    // Empty string = ?grayscale without value (Picsum standard pattern)
+    if (grayscale) params.set(paramKeys.grayscale, "");
+
+    if(blur !==false) params.set(paramKeys.blur, blurAmount);
+
+    // console.log("Fetching:", url.href);
     return url;
 }
 
