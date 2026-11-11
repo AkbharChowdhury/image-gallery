@@ -49,19 +49,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 function buildPicsumUrl({
     width = 200,
     height = 200,
-    grayscale = false,
+    wantsGrayscale = false,
     blur = false
 } = {}) {
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
     const params = url.searchParams;
-    const blurAmount = (blur === true) ? '': blur;
-
+    
     // Empty string = ?grayscale without value (Picsum standard pattern)
-    if (grayscale) params.set(paramKeys.grayscale, '');
+    if (wantsGrayscale){
+        params.set(paramKeys.grayscale, '');
+    }
+    const hasBlur = blur !==false;
 
-    if(blur !==false) params.set(paramKeys.blur, blurAmount);
+    if(hasBlur){
+        const blurAmount = (blur === true) ? '': blur;
+        params.set(paramKeys.blur, blurAmount)
+    }
 
-    // console.log('Fetching:', url.href);
+    console.log('Fetching:', url.href);
     return url;
 }
 
@@ -106,7 +111,7 @@ form.addEventListener('submit', async (e) => {
     const props = Object.freeze({
         width: 400,
         height: 300,
-        grayscale: grayscaleToggle.checked,
+        wantsGrayscale: grayscaleToggle.checked,
         blur: blurOption,
     });
     
