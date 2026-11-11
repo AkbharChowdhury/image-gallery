@@ -1,5 +1,6 @@
 const MAX_BLUR = 10;
 const IMAGE_BASE_URL = 'https://picsum.photos/';
+
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
     blur: 'blur',
@@ -16,11 +17,11 @@ function cloneTemplate(templateSelector) {
 }
 
 function renderImage(blob) {
-    const img = new Image();
     const gallery = document.querySelector('#image-gallery');
     const galleryItem = cloneTemplate('template');
-    img.src = URL.createObjectURL(blob);
 
+    const img = new Image();
+    img.src = URL.createObjectURL(blob);
     img.onload = () => {
         galleryItem.querySelector('img').src = img.src;
         gallery.appendChild(galleryItem);
@@ -55,10 +56,11 @@ function buildPicsumUrl({
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
     const params = url.searchParams;
     
-    // Empty string = ?grayscale without value (Picsum standard pattern)
+    // Empty string = ?grayscale without value
     if (wantsGrayscale){
         params.set(paramKeys.grayscale, '');
     }
+
     const hasBlur = blur !==false;
 
     if(hasBlur){
@@ -71,7 +73,6 @@ function buildPicsumUrl({
 }
 
 async function fetchImageBlob(url = '') {
-
     try {
         const res = await fetch(url);
         if (!res.ok){
