@@ -61,26 +61,28 @@ function buildPicsumUrl({
         params.set(paramKeys.grayscale, '');
     }
 
-    const hasBlur = blur !==false;
+    const hasBlur = blur!==false;
 
     if(hasBlur){
         const blurAmount = (blur === true) ? '': blur;
         params.set(paramKeys.blur, blurAmount)
     }
 
-    console.log('Fetching:', url.href);
+    console.log(`Fetching: ${url.href}`);
     return url;
 }
 
-async function fetchImageBlob(url = '') {
+async function fetchImageBlob(url) {
     try {
         const res = await fetch(url);
         if (!res.ok){
             throw new Error(`HTTP ${res.status}: ${res.statusText}`)
         }
+
         return await res.blob();
+
     } catch (error) {
-        console.error('there was a problem fetching random image', error.message);
+        console.error(`there was a problem fetching random image: ${error.message}`);
         throw error;
 
     }
@@ -93,8 +95,11 @@ blurToggle.addEventListener('change', (e) => {
 });
 
 
-function getBlurSetting({blurToggleIsOn=false, blurAmount=0} = {}) {
-    if (!blurToggleIsOn) return false;
+function getBlurSetting({ blurToggleIsOn=false, blurAmount=0 } = {}) {
+
+    if (!blurToggleIsOn){
+        return false;
+    }
     return (blurAmount === 0) ? true : blurAmount;
 }
 
@@ -103,24 +108,19 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const grayscaleToggle = document.querySelector('#grayscaleToggle');
-
     const blurOption = getBlurSetting({
         blurToggleIsOn: blurToggle.checked,
         blurAmount: parseInt(blurSlider.value)
     });
 
-    const props = Object.freeze({
-        width: 400,
-        height: 300,
-        wantsGrayscale: grayscaleToggle.checked,
-        blur: blurOption,
-    });
-    
     try {
-        const url = buildPicsumUrl(props);
+        const url = buildPicsumUrl({
+            wantsGrayscale: grayscaleToggle.checked,
+            blur: blurOption,
+        });
         const blob = await fetchImageBlob(url.href);
         renderImage(blob);
     } catch (err) {
-        console.error('Whoops, we had issues fetching you new image:', err.message);
+        console.error(`Whoops, we had issues fetching you new image: ${err.message}`);
     }
 });
