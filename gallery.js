@@ -1,6 +1,5 @@
 const MAX_BLUR = 10;
 const IMAGE_BASE_URL = 'https://picsum.photos/';
-
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
     blur: 'blur',
@@ -8,44 +7,33 @@ const paramKeys = Object.freeze({
 
 const blurToggle = document.querySelector('#blurToggle');
 const blurSlider = document.querySelector('#blurSlider');
-const form = document.querySelector('form');
 
 function cloneTemplate(templateSelector) {
     const template = document.querySelector(templateSelector);
     const clone = template.content.cloneNode(true);
     return clone;
 }
-
 function renderImage(blob) {
     const gallery = document.querySelector('#image-gallery');
-    const galleryItem = cloneTemplate('template');
-
-    const img = new Image();
-    img.src = URL.createObjectURL(blob);
-    img.onload = () => {
-        galleryItem.querySelector('img').src = img.src;
-        gallery.appendChild(galleryItem);
-        URL.revokeObjectURL(img.src);
-    };
+    const galleryItem = cloneTemplate('#gallery-item');
+    const imgEl = galleryItem.querySelector('img');
+    const objUrl = URL.createObjectURL(blob);
+    imgEl.src = objUrl;
+    imgEl.onload = () => URL.revokeObjectURL(objUrl);
+    imgEl.onerror = () => URL.revokeObjectURL(objUrl);
+    gallery.appendChild(galleryItem);
 }
 
-
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    
-    // Set up UI constants first
-    blurSlider.setAttribute('max', MAX_BLUR);
-    // Load and display initial image
-    const url = buildPicsumUrl();
-    const blob = await fetchImageBlob(url.href);
-    renderImage(blob);
-
-  } catch (err) {
-    console.error('Failed to initialise gallery:', err);
-    
-  }
-});
-
+async function initaliseGallery() {
+    try {
+        blurSlider.max = MAX_BLUR;
+        const url = buildPicsumUrl();
+        const blob = await fetchImageBlob(url.href);
+        renderImage(blob);
+    } catch (error) {
+        console.warn('Whoops, we could not load the gallery', error);
+    }
+}
 
 function buildPicsumUrl({
     width = 200,
@@ -61,8 +49,7 @@ function buildPicsumUrl({
         params.set(paramKeys.grayscale, '');
     }
 
-    const hasBlur = blur!==false;
-
+    const hasBlur = blur !== false;
     if(hasBlur){
         const blurAmount = (blur === true) ? '': blur;
         params.set(paramKeys.blur, blurAmount)
@@ -74,19 +61,12 @@ function buildPicsumUrl({
 
 async function fetchImageBlob(url) {
     try {
-        const res = await fetch(url);
-        if (!res.ok){
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-        }
-
-        return await res.blob();
-
+        const response = await fetch(url); 
+        if (!response.ok) throw new Error('Could not find the URL', response.status, response.statusText)   
+        return await response.blob();
     } catch (error) {
-        console.error(`there was a problem fetching random image: ${error.message}`);
         throw error;
-
     }
-
 }
 
 blurToggle.addEventListener('change', (e) => {
@@ -96,17 +76,12 @@ blurToggle.addEventListener('change', (e) => {
 
 
 function getBlurSetting({ blurToggleIsOn=false, blurAmount=0 } = {}) {
-
-    if (!blurToggleIsOn){
-        return false;
-    }
+    if (!blurToggleIsOn) return false;
     return (blurAmount === 0) ? true : blurAmount;
 }
 
-form.addEventListener('submit', async (e) => {
-
+async function imageFormSubmitted(e) {
     e.preventDefault();
-
     const grayscaleToggle = document.querySelector('#grayscaleToggle');
     const blurOption = getBlurSetting({
         blurToggleIsOn: blurToggle.checked,
@@ -121,6 +96,10 @@ form.addEventListener('submit', async (e) => {
         const blob = await fetchImageBlob(url.href);
         renderImage(blob);
     } catch (err) {
-        console.error(`Whoops, we had issues fetching you new image: ${err.message}`);
+        console.warn(`Whoops, we had issues fetching you new image: ${err.message}`);
     }
-});
+    
+}
+
+document.addEventListener('DOMContentLoaded', initaliseGallery);
+document.querySelector('form').addEventListener('submit', imageFormSubmitted);
