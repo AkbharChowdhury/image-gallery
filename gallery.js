@@ -1,4 +1,5 @@
 const MAX_BLUR = 10;
+const FALLBACK_BASE_URL = 'https://source.unsplash.com/random/';
 const IMAGE_BASE_URL = 'https://picsum.photos/';
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
@@ -60,14 +61,11 @@ function buildPicsumUrl({
 }
 
 async function fetchImageBlob(url) {
-    try {
-        const response = await fetch(url); 
-        if (!response.ok) throw new Error('Could not find the URL', response.status, response.statusText)   
-        return await response.blob();
-    } catch (error) {
-        throw error;
-    }
+    const response = await fetch(url);
+    return await response.blob();
 }
+
+
 
 blurToggle.addEventListener('change', (e) => {
     const isEnabled = e.target.checked;
