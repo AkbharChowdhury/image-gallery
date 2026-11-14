@@ -1,6 +1,7 @@
 const MAX_BLUR = 10;
 const FALLBACK_BASE_URL = 'https://source.unsplash.com/random/';
 const IMAGE_BASE_URL = 'https://picsum.photos/';
+
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
     blur: 'blur',
@@ -19,6 +20,8 @@ function renderImage(blob) {
     const galleryItem = cloneTemplate('#gallery-item');
     const imgEl = galleryItem.querySelector('img');
     const objUrl = URL.createObjectURL(blob);
+        imgEl.crossOrigin = 'anonymous'; // ✅ tells Picsum we accept CORS
+
     imgEl.src = objUrl;
     imgEl.onload = () => URL.revokeObjectURL(objUrl);
     imgEl.onerror = () => URL.revokeObjectURL(objUrl);
@@ -29,8 +32,8 @@ async function initaliseGallery() {
     try {
         blurSlider.max = MAX_BLUR;
         const url = buildPicsumUrl();
-        const blob = await fetchImage(url.href);
-        renderImage(blob);
+        console.log(url.toString())
+        renderImage(await fetchImage(url.href));
     } catch (error) {
         console.warn('Whoops, we could not load the gallery', error);
     }
@@ -44,25 +47,32 @@ function buildPicsumUrl({
 } = {}) {
     const url = new URL(`${width}/${height}`, IMAGE_BASE_URL);
     const params = url.searchParams;
-    
+
     // Empty string = ?grayscale without value
-    if (wantsGrayscale){
+    if (wantsGrayscale) {
         params.set(paramKeys.grayscale, '');
     }
 
     const hasBlur = blur !== false;
-    if(hasBlur){
-        const blurAmount = (blur === true) ? '': blur;
+    if (hasBlur) {
+        const blurAmount = (blur === true) ? '' : blur;
         params.set(paramKeys.blur, blurAmount)
     }
 
-    console.log(`Fetching: ${url.href}`);
+    // console.log(`Fetching: ${url.href}`);
     return url;
 }
 
 async function fetchImage(url) {
-    const response = await fetch(url);
-    return await response.blob();
+    try {
+
+        const response = await fetch(url);
+        return await response.blob();
+
+    } catch (error) {
+        console.warn('there was an issue with the image', error)
+
+    }
 }
 
 
@@ -73,7 +83,7 @@ blurToggle.addEventListener('change', (e) => {
 });
 
 
-function getBlurSetting({ blurToggleIsOn=false, blurAmount=0 } = {}) {
+function getBlurSetting({ blurToggleIsOn = false, blurAmount = 0 } = {}) {
     if (!blurToggleIsOn) return false;
     return (blurAmount === 0) ? true : blurAmount;
 }
@@ -91,12 +101,11 @@ async function imageFormSubmitted(e) {
             wantsGrayscale: grayscaleToggle.checked,
             blur: blurOption,
         });
-        const blob = await fetchImage(url.href);
-        renderImage(blob);
+        renderImage(await fetchImage(url.href));
     } catch (err) {
         console.warn(`Whoops, we had issues fetching you new image: ${err.message}`);
     }
-    
+
 }
 
 document.addEventListener('DOMContentLoaded', initaliseGallery);
