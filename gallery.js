@@ -29,7 +29,7 @@ async function initaliseGallery() {
     try {
         blurSlider.max = MAX_BLUR;
         const url = buildPicsumUrl();
-        const blob = await fetchImageBlob(url.href);
+        const blob = await fetchImage(url.href);
         renderImage(blob);
     } catch (error) {
         console.warn('Whoops, we could not load the gallery', error);
@@ -60,7 +60,7 @@ function buildPicsumUrl({
     return url;
 }
 
-async function fetchImageBlob(url) {
+async function fetchImage(url) {
     const response = await fetch(url);
     return await response.blob();
 }
@@ -91,7 +91,7 @@ async function imageFormSubmitted(e) {
             wantsGrayscale: grayscaleToggle.checked,
             blur: blurOption,
         });
-        const blob = await fetchImageBlob(url.href);
+        const blob = await fetchImage(url.href);
         renderImage(blob);
     } catch (err) {
         console.warn(`Whoops, we had issues fetching you new image: ${err.message}`);
