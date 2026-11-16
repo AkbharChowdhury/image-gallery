@@ -1,5 +1,4 @@
 const IMAGE_BASE_URL = 'https://picsum.photos/';
-
 const paramKeys = Object.freeze({
     grayscale: 'grayscale',
     blur: 'blur',

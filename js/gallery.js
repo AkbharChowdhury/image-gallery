@@ -24,8 +24,6 @@ async function initialiseGallery() {
     try {
         blurSlider.max = MAX_BLUR;
         const imageUrl = buildPicsumUrl();
-        
-    
         const blob = await fetchImage(imageUrl.href);
 
         if (!blob) {
