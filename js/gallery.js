@@ -24,6 +24,8 @@ async function initialiseGallery() {
     try {
         blurSlider.max = MAX_BLUR;
         const imageUrl = buildPicsumUrl();
+        
+    
         const blob = await fetchImage(imageUrl.href);
 
         if (!blob) {
@@ -57,13 +59,13 @@ async function imageFormSubmitted(e) {
     });
 
     try {
-        const url = buildPicsumUrl({
+        const imageUrl = buildPicsumUrl({
             wantsGrayscale: grayscaleToggle.checked,
             blur: blurOption,
         });
-        renderImage(await fetchImage(url.href));
-    } catch (err) {
-        console.warn(`Whoops, we had issues fetching you new image: ${err.message}`);
+        renderImage(await fetchImage(imageUrl.href));
+    } catch (error) {
+        console.warn(`Whoops, we had issues fetching you new image: ${error.message}`);
     }
 
 }
