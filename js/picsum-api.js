@@ -28,21 +28,26 @@ export function buildPicsumUrl({
     return url;
 }
 
+
 export async function fetchImage(url) {
-    try {
+  try {
+    const response = await fetch(url);
 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: Failed to fetch image`, {
-                cause: response.statusText
-            });
-
-        }
-        return await response.blob();
-
-    } catch (error) {
-        console.warn('There was an issue fetching the image:', error.message);
-        throw error;
-
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: Failed to fetch`, {
+        cause: response.statusText
+      });
     }
+
+    const contentType = response.headers.get('content-type') || '';
+    console.log(response.headers.get('content-type'))
+    if (contentType.includes('application/json')) {
+      return await response.json();
+    }
+    return await response.blob();
+
+  } catch (error) {
+    console.warn('There was an issue fetching:', error.message);
+    throw error; // Let caller handle if needed
+  }
 }
