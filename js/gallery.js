@@ -28,8 +28,6 @@ async function loadImages(images) {
     }
 }
 
-
-
 function renderImage(blob) {
     const gallery = document.querySelector('#image-gallery');
     const galleryItem = cloneTemplate('#gallery-item');
@@ -44,7 +42,6 @@ function renderImage(blob) {
 }
 
 async function initialiseGallery() {
-
 
     try {
         blurSlider.max = MAX_BLUR;
